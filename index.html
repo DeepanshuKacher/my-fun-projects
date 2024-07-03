@@ -16,6 +16,8 @@
         <span id="progressPercent">0%</span>
         <br>
         <span id="uploadSpeed">Upload Speed: 0 MB/s</span>
+        <br>
+        <span id="uploadTime">Time Taken: 0 seconds</span>
     </div>
 
     <script>
@@ -50,6 +52,9 @@
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === XMLHttpRequest.DONE) {
                     if (xhr.status === 200) {
+                        var endTime = new Date().getTime();
+                        var uploadTime = (endTime - startTime) / 1000; // in seconds
+                        document.getElementById('uploadTime').innerText = 'Time Taken: ' + uploadTime.toFixed(2) + ' seconds';
                         console.log('Upload successful');
                     } else {
                         console.error('Upload failed');
