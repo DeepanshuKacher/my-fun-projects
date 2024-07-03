@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload</title>
+</head>
+<body>
+    <h1>Upload a File</h1>
+    <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" id="fileInput">
+        <input type="submit" value="Upload">
+    </form>
+    <div id="progressWrapper" style="display: none;">
+        <progress id="uploadProgress" value="0" max="100"></progress>
+        <span id="progressPercent">0%</span>
+        <br>
+        <span id="uploadSpeed">Upload Speed: 0 MB/s</span>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var form = this;
+            var formData = new FormData(form);
+            var xhr = new XMLHttpRequest();
+
+            var startTime = new Date().getTime();
+            var lastLoaded = 0;
+            var uploadSpeed = 0;
+
+            xhr.upload.addEventListener('progress', function(e) {
+                if (e.lengthComputable) {
+                    var percent = Math.round((e.loaded / e.total) * 100);
+                    document.getElementById('progressWrapper').style.display = 'block';
+                    document.getElementById('uploadProgress').value = percent;
+                    document.getElementById('progressPercent').innerText = percent + '%';
+
+                    var currentTime = new Date().getTime();
+                    var deltaTime = (currentTime - startTime) / 1000; // in seconds
+                    var currentLoaded = e.loaded;
+                    var deltaLoaded = currentLoaded - lastLoaded;
+                    lastLoaded = currentLoaded;
+
+                    uploadSpeed = deltaLoaded / deltaTime / (1024 * 1024); // in MB/s
+                    document.getElementById('uploadSpeed').innerText = 'Upload Speed: ' + uploadSpeed.toFixed(2) + ' MB/s';
+                }
+            });
+
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        console.log('Upload successful');
+                    } else {
+                        console.error('Upload failed');
+                    }
+                }
+            };
+
+            xhr.open('POST', form.action, true);
+            xhr.send(formData);
+        });
+    </script>
+</body>
+</html>
